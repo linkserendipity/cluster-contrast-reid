@@ -34,7 +34,7 @@ start_epoch = best_mAP = 0
 
 
 def get_data(name, data_dir):
-    root = osp.join(data_dir, name)
+    root = osp.join(data_dir, name) # ! /mnt/SSD/ls/data + / + market or dukemtmcreid or ...
     dataset = datasets.create(name, root)
     return dataset
 
@@ -231,13 +231,13 @@ def main_worker(args):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Self-paced contrastive learning on unsupervised re-ID")
     # data
-    parser.add_argument('-d', '--dataset', type=str, default='dukemtmcreid',
+    parser.add_argument('-d', '--dataset', type=str, default='dukemtmcreid', #?
                         choices=datasets.names())
     parser.add_argument('-b', '--batch-size', type=int, default=2)
     parser.add_argument('-j', '--workers', type=int, default=4)
     parser.add_argument('--height', type=int, default=256, help="input height")
     parser.add_argument('--width', type=int, default=128, help="input width")
-    parser.add_argument('--num-instances', type=int, default=4,
+    parser.add_argument('--num-instances', type=int, default=4,   ###!!! ?
                         help="each minibatch consist of "
                              "(batch_size // num_instances) identities, and "
                              "each identity has num_instances instances, "
@@ -268,14 +268,15 @@ if __name__ == '__main__':
     parser.add_argument('--step-size', type=int, default=20)
     # training configs
     parser.add_argument('--seed', type=int, default=1)
-    parser.add_argument('--print-freq', type=int, default=10)
+    parser.add_argument('--print-freq', type=int, default=50) #!!!
     parser.add_argument('--eval-step', type=int, default=10)
     parser.add_argument('--temp', type=float, default=0.05,
                         help="temperature for scaling contrastive loss")
     # path
-    working_dir = osp.dirname(osp.abspath(__file__))
+    working_dir = osp.dirname(osp.abspath(__file__)) ## !!!!!! working_dir是cluster_contrast_train_usl.py 所在的examples文件夹？？？
     parser.add_argument('--data-dir', type=str, metavar='PATH',
-                        default=osp.join(working_dir, 'data'))
+                        default=osp.join('/mnt/SSD/ls', 'data'))
+                        # default=osp.join(working_dir, 'data'))
     parser.add_argument('--logs-dir', type=str, metavar='PATH',
                         default=osp.join(working_dir, 'logs'))
     parser.add_argument('--pooling-type', type=str, default='gem')
