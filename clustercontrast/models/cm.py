@@ -26,7 +26,7 @@ class CM(autograd.Function):
 
         # momentum update
         for x, y in zip(inputs, targets):
-            ctx.features[y] = ctx.momentum * ctx.features[y] + (1. - ctx.momentum) * x
+            ctx.features[y] = ctx.momentum * ctx.features[y] + (1. - ctx.momentum) * x  #  ANCHOR 原来公式(2)在这里
             ctx.features[y] /= ctx.features[y].norm()
 
         return grad_inputs, None, None, None
@@ -64,8 +64,8 @@ class CM_Hard(autograd.Function):
                 distance = feature.unsqueeze(0).mm(ctx.features[index].unsqueeze(0).t())[0][0]
                 distances.append(distance.cpu().numpy())
 
-            median = np.argmin(np.array(distances))
-            ctx.features[index] = ctx.features[index] * ctx.momentum + (1 - ctx.momentum) * features[median]
+            median = np.argmin(np.array(distances)) # @ 距离最远的 index 对应的 query instance feature 作为 hard example??????
+            ctx.features[index] = ctx.features[index] * ctx.momentum + (1 - ctx.momentum) * features[median] # REVIEW!! 
             ctx.features[index] /= ctx.features[index].norm()
 
         return grad_inputs, None, None, None
@@ -78,23 +78,23 @@ def cm_hard(inputs, indexes, features, momentum=0.5):
 class ClusterMemory(nn.Module, ABC):
     def __init__(self, num_features, num_samples, temp=0.05, momentum=0.2, use_hard=False):
         super(ClusterMemory, self).__init__()
-        self.num_features = num_features
+        self.num_features = num_features # REVIEW 这个num_features到底是啥???
         self.num_samples = num_samples
 
         self.momentum = momentum
         self.temp = temp
         self.use_hard = use_hard
 
-        self.register_buffer('features', torch.zeros(num_samples, num_features))
+        self.register_buffer('features', torch.zeros(num_samples, num_features)) # REVIEW 这个 register_buffer 函数又是干啥的
 
-    def forward(self, inputs, targets):
+    def forward(self, inputs, targets): # * trainers 的 loss = self.memory(f_out, labels)
 
-        inputs = F.normalize(inputs, dim=1).cuda()
-        if self.use_hard:
-            outputs = cm_hard(inputs, targets, self.features, self.momentum)
+        inputs = F.normalize(inputs, dim=1).cuda() # ? 还要归一化??
+        if self.use_hard: # @ 关键就是要用到 hard !??????? 选择hard example 来更新 centroid cluster feature!???
+            outputs = cm_hard(inputs, targets, self.features, self.momentum) # ! self.features = torch.zeros(num_samples, num_features)?????
         else:
             outputs = cm(inputs, targets, self.features, self.momentum)
 
         outputs /= self.temp
-        loss = F.cross_entropy(outputs, targets)
+        loss = F.cross_entropy(outputs, targets) # 交叉熵 
         return loss

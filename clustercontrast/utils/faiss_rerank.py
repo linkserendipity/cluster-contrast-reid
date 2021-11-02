@@ -36,7 +36,7 @@ def compute_jaccard_distance(target_features, k1=20, k2=6, print_flag=True, sear
     N = target_features.size(0)
     mat_type = np.float16 if use_float16 else np.float32
 
-    if (search_option==0):
+    if (search_option==0): #????????????
         # GPU + PyTorch CUDA Tensors (1)
         res = faiss.StandardGpuResources()
         res.setDefaultNullStreamAllDevices()

@@ -25,11 +25,12 @@ class Preprocessor(Dataset):
         fname, pid, camid = self.dataset[index]
         fpath = fname
         if self.root is not None:
-            fpath = osp.join(self.root, fname)
+            fpath = osp.join(self.root, fname) # * 路径和文件名合起来 变成图片的绝对路径
 
         img = Image.open(fpath).convert('RGB')
 
         if self.transform is not None:
             img = self.transform(img)
+        # ! fname 仅仅是图片的名称.jpg 加上路径变成 fpath 再转成 'RGB' 经过 transform 之后变成img 这是个图片的格式???
 
         return img, fname, pid, camid, index

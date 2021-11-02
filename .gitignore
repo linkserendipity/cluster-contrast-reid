@@ -15,5 +15,5 @@ build
 *.tar
 
 # log
-examples/logs
+examples/logs/*
 examples/logs/log.txt

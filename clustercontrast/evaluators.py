@@ -12,16 +12,16 @@ from .utils.meters import AverageMeter
 from .utils.rerank import re_ranking
 from .utils import to_torch
 
-
+# * 返回 cpu()里面的输出?
 def extract_cnn_feature(model, inputs):
     inputs = to_torch(inputs).cuda()
-    outputs = model(inputs)
+    outputs = model(inputs) # @ 这一行就提取特征了?
     outputs = outputs.data.cpu()
     return outputs
 
 
 def extract_features(model, data_loader, print_freq=50):
-    model.eval()
+    model.eval() # ! 说明不加 BN 和 Dropout
     batch_time = AverageMeter()
     data_time = AverageMeter()
 
@@ -29,7 +29,7 @@ def extract_features(model, data_loader, print_freq=50):
     labels = OrderedDict()
 
     end = time.time()
-    with torch.no_grad():
+    with torch.no_grad(): # ! 参数不回传!!!!
         for i, (imgs, fnames, pids, _, _) in enumerate(data_loader):
             data_time.update(time.time() - end)
 
@@ -41,11 +41,11 @@ def extract_features(model, data_loader, print_freq=50):
             batch_time.update(time.time() - end)
             end = time.time()
 
-            if (i + 1) % print_freq == 0:
+            if (i ) % print_freq == 0: # ! 去掉+1
                 print('Extract Features: [{}/{}]\t'
                       'Time {:.3f} ({:.3f})\t'
                       'Data {:.3f} ({:.3f})\t'
-                      .format(i + 1, len(data_loader),
+                      .format(i, len(data_loader),
                               batch_time.val, batch_time.avg,
                               data_time.val, data_time.avg))
 
@@ -90,7 +90,7 @@ def evaluate_all(query_features, gallery_features, distmat, query=None, gallery=
     mAP = mean_ap(distmat, query_ids, gallery_ids, query_cams, gallery_cams)
     print('Mean AP: {:4.1%}'.format(mAP))
 
-    if (not cmc_flag):
+    if (not cmc_flag): # NOTE cmc_flag = False 的时候 只返回 mAP 值 否则返回cmc
         return mAP
 
     cmc_configs = {
@@ -103,7 +103,7 @@ def evaluate_all(query_features, gallery_features, distmat, query=None, gallery=
 
     print('CMC Scores:')
     for k in cmc_topk:
-        print('  top-{:<4}{:12.1%}'.format(k, cmc_scores['market1501'][k-1]))
+        print('  top-{:<4}\033[0;31;1m{:12.1%}\033[0m'.format(k, cmc_scores['market1501'][k-1])) # * 输出颜色
     return cmc_scores['market1501'], mAP
 
 
@@ -120,7 +120,7 @@ class Evaluator(object):
         if (not rerank):
             return results
 
-        print('Applying person re-ranking ...')
+        print('Applying person re-ranking ...') #  TODO 不加reranking就能跑出最好的结果??！！！！！！！
         distmat_qq, _, _ = pairwise_distance(features, query, query)
         distmat_gg, _, _ = pairwise_distance(features, gallery, gallery)
         distmat = re_ranking(distmat.numpy(), distmat_qq.numpy(), distmat_gg.numpy())

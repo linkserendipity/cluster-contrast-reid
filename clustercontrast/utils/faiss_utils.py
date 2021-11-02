@@ -81,8 +81,8 @@ def search_raw_array_pytorch(res, xb, xq, k, D=None, I=None,
 
     D_ptr = swig_ptr_from_FloatTensor(D)
     I_ptr = swig_ptr_from_LongTensor(I)
-
-    faiss.bruteForceKnn(res, metric,
+    # ? bruteForceKnn is deprecated; call bfKnn instead
+    faiss.bruteForceKnn(res, metric, # TODO !!!
                 xb_ptr, xb_row_major, nb,
                 xq_ptr, xq_row_major, nq,
                 d, k, D_ptr, I_ptr)

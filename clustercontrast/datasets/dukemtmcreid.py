@@ -4,7 +4,7 @@ import re
 from ..utils.data import BaseImageDataset
 
 
-def process_dir(dir_path, relabel=False):
+def process_dir(dir_path, relabel=False): # NOTE 先处理一下 把干扰的删了 camid-1 从0开始
     img_paths = glob.glob(osp.join(dir_path, "*.jpg"))
     pattern = re.compile(r"([-\d]+)_c(\d)")
 
@@ -16,7 +16,7 @@ def process_dir(dir_path, relabel=False):
             continue
         pid_container.add(pid)
 
-    pid2label = {pid: label for label, pid in enumerate(pid_container)}
+    pid2label = {pid: label for label, pid in enumerate(pid_container)} # ! pid2label 转成连续的label??
 
     data = []
     for img_path in img_paths:

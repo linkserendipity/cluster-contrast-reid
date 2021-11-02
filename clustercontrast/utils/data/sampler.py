@@ -42,8 +42,8 @@ class RandomIdentitySampler(Sampler):
             ret.extend(t)
         return iter(ret)
 
-
-class RandomMultipleGallerySampler(Sampler):
+# REVIEW 这个sampler是什么用的
+class RandomMultipleGallerySampler(Sampler): 
     def __init__(self, data_source, num_instances=4):
         super().__init__(data_source)
         self.data_source = data_source
@@ -66,11 +66,11 @@ class RandomMultipleGallerySampler(Sampler):
         return self.num_samples * self.num_instances
 
     def __iter__(self):
-        indices = torch.randperm(len(self.pids)).tolist()
+        indices = torch.randperm(len(self.pids)).tolist() # !
         ret = []
 
         for kid in indices:
-            i = random.choice(self.pid_index[self.pids[kid]])
+            i = random.choice(self.pid_index[self.pids[kid]]) #!
 
             _, i_pid, i_cam = self.data_source[i]
 
@@ -79,7 +79,7 @@ class RandomMultipleGallerySampler(Sampler):
             pid_i = self.index_pid[i]
             cams = self.pid_cam[pid_i]
             index = self.pid_index[pid_i]
-            select_cams = No_index(cams, i_cam)
+            select_cams = No_index(cams, i_cam) #!!!??? REVIEW 啥玩意
 
             if select_cams:
 

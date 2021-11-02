@@ -12,10 +12,11 @@ class IterLoader:
 
     def __len__(self):
         if self.length is not None:
-            return self.length
+            return self.length #  指定好了的 length=iters =400!!!!! 
+            #! NOTE 训练resnet50的时候 trainer.train(  train_iters=len(train_loader)=length=iters=400!!!
 
         return len(self.loader)
-
+    # ! 这个new_epoch是做啥用的??
     def new_epoch(self):
         self.iter = iter(self.loader)
 
