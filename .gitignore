@@ -16,3 +16,4 @@ build
 
 # log
 examples/logs
+examples/logs/log.txt
