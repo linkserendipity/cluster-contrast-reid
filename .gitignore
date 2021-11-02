@@ -13,3 +13,6 @@ build
 
 # model
 *.tar
+
+# log
+examples/logs
